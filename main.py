@@ -145,6 +145,12 @@ class UPowerWrapper:
             return state == 1
         return False
 
+    async def _get_state(self, obj):
+        """Returns battery state"""
+        interface = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
+        state = int(await interface.get_state())
+        return self.STATE_MAP[state]
+
     async def get_full_device_information(self, obj):
         """Returns full device information as dict, takes in object path as string"""
 
@@ -237,7 +243,7 @@ async def main():
     print("\n--- Devices ---")
     devices = await mybus.get_devices()
     dev = await mybus.get_full_device_information(devices[0])
-    pec = await mybus.is_charging(devices[0])
+    pec = await mybus._get_state(devices[0])
     print(pec)
     print("\n")
 
