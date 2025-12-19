@@ -10,6 +10,8 @@ class UPowerWrapper:
     UPOWER_PATH = "/org/freedesktop/UPower"
     UPOWER_MANAGER_IFACE = "org.freedesktop.UPower"
     UPOWER_DEVICE_IFACE = "org.freedesktop.UPower.Device"
+    IFACE_DEVICE = "org.freedesktop.UPower.Device"
+    IFACE_WAKEUPS = "org.freedesktop.UPower.Wakeups"
 
     # Mapping UPower State integers to readable strings
     # Ref: https://upower.freedesktop.org/docs/Device.html
@@ -30,23 +32,28 @@ class UPowerWrapper:
         """Connect to System Bus"""
         self.bus = await MessageBus(bus_type=BusType.SYSTEM).connect()
 
-    async def _get_interface_(self, path, iface_name):
+    async def _get_interface(self, path, iface_name):
         """
         Helper function to introspect and return specific interface,
-        Returns None if interface is not found or path is invalid.
+        Raises exception if interface is not found or path is invalid.
+        """
+        introspect = await self.bus.introspect(self.UPOWER_MANAGER_IFACE, path)
+        proxy = self.bus.get_proxy_object(self.UPOWER_MANAGER_IFACE, path, introspect)
+        return proxy.get_interface(iface_name)
+
+    async def _get_wakeups_interface(self):
+        """
+        GRACEFUL Helper: Specifically for Wakeups.
+        Returns None if missing instead of raising an exception.
         """
         try:
-            introspect = await self.bus.introspect(self.UPOWER_MANAGER_IFACE, path)
-            proxy = self.bus.get_proxy_object(
-                self.UPOWER_MANAGER_IFACE, path, introspect
-            )
-            return proxy.get_interface(iface_name)
+            return await self._get_interface(self.WAKEUPS_PATH, self.IFACE_WAKEUPS)
         except (InterfaceNotFoundError, Exception):
             return None
 
     async def get_devices(self):
         """Enumerate all power devices and fetch their details"""
-        interface = await self._get_interface_(
+        interface = await self._get_interface(
             self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
         )
 
@@ -55,7 +62,7 @@ class UPowerWrapper:
 
     async def get_display_device(self):
         """Fetch display device"""
-        interface = await self._get_interface_(
+        interface = await self._get_interface(
             self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
         )
 
@@ -63,8 +70,8 @@ class UPowerWrapper:
         return display_dev
 
     async def get_critical_action(self):
-        """TBD"""
-        interface = await self._get_interface_(
+        """TBA"""
+        interface = await self._get_interface(
             self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
         )
 
@@ -73,7 +80,7 @@ class UPowerWrapper:
 
     async def get_manager_status(self):
         """Fetch global power manager status."""
-        interface = await self._get_interface_(
+        interface = await self._get_interface(
             self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
         )
 
@@ -91,34 +98,57 @@ class UPowerWrapper:
 
     async def get_device_percentage(self, obj):
         """Returns device remaining battery percentage"""
-        interface = await self._get_interface_(obj, self.UPOWER_DEVICE_IFACE)
+        interface = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
         return await interface.get_percentage()
 
     async def is_lid_present(self):
         """Check if lid is present"""
-        interface = await self._get_interface_(
+        interface = await self._get_interface(
             self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
         )
         return bool(await interface.get_lid_is_present())
 
     async def is_lid_closed(self):
         """Check if lid is closed"""
-        interface = await self._get_interface_(
+        interface = await self._get_interface(
             self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
         )
         return bool(await interface.get_lid_is_closed())
 
     async def on_battery(self):
         """Check if device is on battery"""
-        interface = await self._get_interface_(
+        interface = await self._get_interface(
             self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
         )
         return bool(await interface.get_on_battery())
 
+    async def has_wakeup_capabilities(self):
+        """TBA"""
+        interface = self._get_wakeups_interface()
+        return await interface.get_has_capability() if interface else False
+
+    async def get_wakeup_data(self):
+        """TBA"""
+        interface = self._get_wakeups_interface()
+        return await interface.call_get_data() if interface else []
+
+    async def get_wakeup_total(self):
+        """TBA"""
+        interface = self._get_wakeups_interface()
+        return await interface.call_get_total() if interface else 0
+
+    async def is_charging(self, obj):
+        """Check if battery is charging"""
+        interface = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
+        if interface:
+            state = await interface.get_state()
+            return state == 1
+        return False
+
     async def get_full_device_information(self, obj):
         """Returns full device information as dict, takes in object path as string"""
 
-        device_interface = await self._get_interface_(obj, self.UPOWER_DEVICE_IFACE)
+        device_interface = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
 
         # Boolean Properties
         hasHistory = await device_interface.get_has_history()
@@ -207,11 +237,12 @@ async def main():
     print("\n--- Devices ---")
     devices = await mybus.get_devices()
     dev = await mybus.get_full_device_information(devices[0])
-    pec = await mybus.get_display_device()
+    pec = await mybus.is_charging(devices[0])
     print(pec)
+    print("\n")
 
-    #    for key, value in dev.items():
-    #        print(f"{key}: {value}")
+    for key, value in dev.items():
+        print(f"{key}: {value}")
 
 
 if __name__ == "__main__":
