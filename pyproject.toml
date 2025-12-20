@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "upower-python-wrapper"
+version = "0.1.0"
+description = "Upower wrapper using dbus-next async aio"
+dependencies = [
+    "dbus-next",
+]
+requires-python = ">=3.8"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+
