@@ -4,14 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "upower-python-wrapper"
-version = "0.1.0"
-description = "Upower wrapper using dbus-next async aio"
-dependencies = [
-    "dbus-next",
+version = "0.1.1"
+description = "Upower wrapper using dbus-next modern async aio"
+readme = "README.MD"
+authors = [{ name = "Ishmael S", email = "brutalsam90@gmail.com" }]
+license = { file = "MIT" }
+dependencies = ["dbus-next"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: Other/Proprietary License",
+  "Operating System :: POSIX :: Linux",
 ]
 requires-python = ">=3.8"
 
-[tool.setuptools.packages.find]
-where = ["."]
-
-
+[project.urls]
+Homepage = "https://github.com/brutalsam96/upower-pywrapper"
