@@ -39,7 +39,7 @@ These methods typically require a device object path (string) as an argument.
 
 ```python
 import asyncio
-from upower_api.wrapper import UPowerWrapper
+from upower_api import UPowerWrapper
 
 
 async def main():
