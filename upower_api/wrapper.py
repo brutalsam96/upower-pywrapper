@@ -170,6 +170,7 @@ class UPowerWrapper:
 
         # Energy/Charge Properties
         capacity = await device_interface.get_capacity()
+        chargecycles = await device_interface.get_charge_cycles()
         energy = await device_interface.get_energy()
         energyempty = await device_interface.get_energy_empty()
         energyfull = await device_interface.get_energy_full()
@@ -197,36 +198,59 @@ class UPowerWrapper:
         technology = await device_interface.get_technology()
         battype = await device_interface.get_type()
         warninglevel = await device_interface.get_warning_level()
+        batterylevel = await device_interface.get_battery_level()
+
+        # Threshold Properties
+        threshold_start = await device_interface.get_charge_start_threshold()
+        threshold_end = await device_interface.get_charge_end_threshold()
+        is_threshold_enabled = await device_interface.get_charge_threshold_enabled()
+        is_threshold_supported = await device_interface.get_charge_threshold_supported()
+        is_threshold_setting_supported = (
+            await device_interface.get_charge_threshold_settings_supported()
+        )
+        voltage_min = await device_interface.get_voltage_min_design()
+        voltage_max = await device_interface.get_voltage_max_design()
+        capacity_level = await device_interface.get_capacity_level()
 
         information_table = {
+            "NativePath": nativepath,
+            "Vendor": vendor,
+            "Model": model,
+            "Serial": serial,
+            "UpdateTime": updatetime,
+            "Type": battype,
+            "PowerSupply": powersupply,
             "HasHistory": hasHistory,
             "HasStatistics": hasStatistics,
-            "IsPresent": isPresent,
-            "IsRechargeable": isRechargable,
             "Online": online,
-            "PowerSupply": powersupply,
-            "Capacity": capacity,
             "Energy": energy,
             "EnergyEmpty": energyempty,
             "EnergyFull": energyfull,
             "EnergyFullDesign": energyfulldesign,
             "EnergyRate": energyrate,
-            "Luminosity": luminosity,
-            "Percentage": percentage,
-            "Temperature": temperature,
             "Voltage": voltage,
+            "ChargeCycles": chargecycles,
+            "Luminosity": luminosity,
             "TimeToEmpty": timetoempty,
             "TimeToFull": timetofull,
-            "IconName": iconname,
-            "Model": model,
-            "NativePath": nativepath,
-            "Serial": serial,
-            "Vendor": vendor,
+            "Percentage": percentage,
+            "Temperature": temperature,
+            "IsPresent": isPresent,
             "State": state,
+            "IsRechargeable": isRechargable,
+            "Capacity": capacity,
             "Technology": technology,
-            "Type": battype,
             "WarningLevel": warninglevel,
-            "UpdateTime": updatetime,
+            "BatteryLevel": batterylevel,
+            "IconName": iconname,
+            "ChargeStartThreshold": threshold_start,
+            "ChargeEndThreshold": threshold_end,
+            "ChargeThresholdEnabled": is_threshold_enabled,
+            "ChargeThresholdSupported": is_threshold_supported,
+            "ChargeThresholdSettingsSupported": is_threshold_setting_supported,
+            "VoltageMinDesign": voltage_min,
+            "VoltageMaxDesign": voltage_max,
+            "CapacityLevel": capacity_level,
         }
 
         return information_table
