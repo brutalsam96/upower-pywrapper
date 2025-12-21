@@ -128,17 +128,17 @@ class UPowerWrapper:
 
     async def has_wakeup_capabilities(self):
         """TBA"""
-        interface: Any = self._get_wakeups_interface()
+        interface: Any = await self._get_wakeups_interface()
         return await interface.get_has_capability() if interface else False
 
     async def get_wakeup_data(self):
         """TBA"""
-        interface: Any = self._get_wakeups_interface()
+        interface: Any = await self._get_wakeups_interface()
         return await interface.call_get_data() if interface else []
 
     async def get_wakeup_total(self):
         """TBA"""
-        interface: Any = self._get_wakeups_interface()
+        interface: Any = await self._get_wakeups_interface()
         return await interface.call_get_total() if interface else 0
 
     async def is_charging(self, obj):
@@ -149,7 +149,7 @@ class UPowerWrapper:
             return state == 1
         return False
 
-    async def _get_state(self, obj):
+    async def get_device_state(self, obj):
         """Returns battery state"""
         interface: Any = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
         state = int(await interface.get_state())
@@ -158,7 +158,7 @@ class UPowerWrapper:
     async def get_full_device_information(self, obj):
         """Returns full device information as dict, takes in object path as string"""
 
-        device_interface = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
+        device_interface: Any = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
 
         # Boolean Properties
         hasHistory = await device_interface.get_has_history()
