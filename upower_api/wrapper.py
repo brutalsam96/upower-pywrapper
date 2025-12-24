@@ -38,8 +38,9 @@ class UPowerWrapper:
         Helper function to introspect and return specific interface,
         Raises exception if interface is not found or path is invalid.
         """
+        # this lazy initialization can cause race conditions at some point
         if self.bus is None:
-            raise RuntimeError("Bus is not connected")
+            await self.connect()
 
         introspect = await self.bus.introspect(self.UPOWER_MANAGER_IFACE, path)
         proxy = self.bus.get_proxy_object(self.UPOWER_MANAGER_IFACE, path, introspect)
@@ -126,11 +127,9 @@ class UPowerWrapper:
         )
         return bool(await interface.get_on_battery())
 
-    async def is_present(self):
+    async def is_present(self, obj):
         """Check if device has battery"""
-        interface: Any = await self._get_interface(
-            self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
-        )
+        interface: Any = await self._get_interface(obj, self.UPOWER_DEVICE_IFACE)
         return bool(await interface.get_is_present())
 
     async def has_wakeup_capabilities(self):

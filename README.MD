@@ -19,7 +19,7 @@ A UPower DBus wrapper using Dbus-next inspired by [wogscpar](https://github.com/
 *   **`is_lid_present()`**: Check if the system has a lid.
 *   **`is_lid_closed()`**: Check if the lid is closed.
 *   **`on_battery()`**: Check if the device is currently running on battery power.
-
+*   **`is_present(obj)`: Check if device has batteries
 ### Wakeups
 *   **`has_wakeup_capabilities()`**: Check if the system supports wakeup capabilities.
 *   **`get_wakeup_data()`**: Get data regarding system wakeups.
