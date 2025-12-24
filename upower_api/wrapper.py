@@ -126,6 +126,13 @@ class UPowerWrapper:
         )
         return bool(await interface.get_on_battery())
 
+    async def is_present(self):
+        """Check if device has battery"""
+        interface: Any = await self._get_interface(
+            self.UPOWER_PATH, self.UPOWER_MANAGER_IFACE
+        )
+        return bool(await interface.get_is_present())
+
     async def has_wakeup_capabilities(self):
         """TBA"""
         interface: Any = await self._get_wakeups_interface()
