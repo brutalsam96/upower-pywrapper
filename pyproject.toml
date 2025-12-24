@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "upower-python-wrapper"
-version = "0.1.1"
+version = "0.1.2"
 description = "Upower wrapper using dbus-next modern async aio"
 readme = "README.MD"
 authors = [{ name = "Ishmael S", email = "brutalsam90@gmail.com" }]
